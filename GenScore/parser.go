@@ -1,4 +1,4 @@
-package goSprime
+package genscore
 
 type Args struct {
 	WorkPath string
