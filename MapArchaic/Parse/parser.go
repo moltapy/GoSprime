@@ -20,7 +20,7 @@ func (args *Args) Parse() {
 
 	var rdDepth *string
 
-	args.BedMode = flag.String("bed", "keep", "Bed file for keep/remove/not use")
+	args.BedMode = flag.String("bed", "", "A flag for indicate how to use the prama MASK FILE,include for including all the points in the mask file, exclude for excluding, default for using all points in the score file")
 	args.SepChar = flag.String("sep", "\t", "Define the separator in the output file")
 	args.MskFile = flag.String("msk", "", "Mask file, only one allowed as the input")
 	args.ScoreFile = flag.String("score", "", "Score file from Sprime")
@@ -28,8 +28,13 @@ func (args *Args) Parse() {
 	rdDepth = flag.String("depth", "", "Add read depth for match(optional)")
 	flag.Parse()
 
-	if *args.MskFile == "" {
-		log.Fatal("The prama MASK FILE cannot be nil, Please check!")
+	if *args.BedMode != "" && *args.MskFile == "" {
+		log.Fatal("If you use the prama BED, The prama MASK FILE cannot be nil, Please check!")
+	} else if *args.MskFile != "" && *args.BedMode == "" {
+		log.Println("If you use the prama MASK FILE, and may expect that it works, You may indicate include/exclude the mask file in the prama BED")
+
+	} else if *args.BedMode != "include" && *args.BedMode != "exclude" && *args.BedMode != "" {
+		log.Fatal("The prama BED only has three options, include/exclude or nil(default),Please check!")
 	} else if *args.ScoreFile == "" {
 		log.Fatal("The prama SCORE FILE cannot be nil, Please check!")
 	} else if *args.RefTag == "" {
