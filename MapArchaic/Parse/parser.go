@@ -14,7 +14,7 @@ type Args struct {
 	ScoreFile *string
 	RefTag    *string
 	OutFile   *string
-	ReadDepth int
+	ReadDepth *string
 }
 
 func (args *Args) Parse() {
