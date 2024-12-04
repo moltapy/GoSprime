@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+const NOTCOMP = "notcomp"
+const MATCH = "match"
+const MISMATCH = "mismatch"
+
 func main() {
 	// Parser part
 	var args = parse.Args{}
@@ -232,8 +236,47 @@ func main() {
 		panic(err)
 	}
 
+	var snps = make([]string, 2)
 	for {
+		lineBytes, err := reader.ReadBytes('\n')
+		if err != nil && err != io.EOF {
+			log.Fatal("Problem occurred when reading the archaic genotype data line by line,Please check!", err)
+		}
+		lineStrip := strings.TrimRight(string(lineBytes), "\r\n")
+		line := strings.Split(lineStrip, "\t")
+		pos, err := strconv.Atoi(line[1])
+		if err != nil {
+			log.Fatal("Problem occurred when transfering the second column(position) into Interger, Please check!", err)
+		}
+		snps[0], snps[1] = line[3], line[4]
 
+		allele, err := strconv.Atoi(line[6])
+		if err != nil {
+			log.Fatal("Problem occurred when transfer the seventh column(allele) into Interger,Please check!", err)
+		}
+
+		var writeLine = string(lineBytes)
+		if data[pos][0] == '0' || depth[pos] < 0 {
+			writeLine += *args.SepChar + NOTCOMP
+			if *args.ReadDepth == "true" {
+				writeLine += *args.SepChar + string(rune(depth[pos]))
+			}
+			writeLine += "\n"
+		} else {
+			if snps[allele] == string(data[pos][1]) || snps[allele] == string(data[pos][2]) {
+				writeLine += *args.SepChar + MATCH
+			} else {
+				writeLine += *args.SepChar + MISMATCH
+			}
+			if *args.ReadDepth == "true" {
+				writeLine += *args.SepChar + string(rune(depth[pos]))
+			}
+			writeLine += "\n"
+		}
+
+		if err == io.EOF {
+			log.Printf("Mapping %s Finished", *args.RefTag)
+			break
+		}
 	}
-
 }
