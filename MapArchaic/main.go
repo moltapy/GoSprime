@@ -221,10 +221,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	newHeader := string(header) + *args.SepChar + *args.RefTag
+	var newHeader string
+	if *args.ReadDepth == "true" {
+		newHeader = string(header) + *args.SepChar + *args.RefTag + *args.SepChar + *args.RefTag + "_DP" + "\n"
+	} else {
+		newHeader = string(header) + *args.SepChar + *args.RefTag + "\n"
+	}
 	_, err = writer.WriteString(newHeader)
 	if err != nil {
 		panic(err)
+	}
+
+	for {
+
 	}
 
 }

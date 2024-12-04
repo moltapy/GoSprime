@@ -31,7 +31,6 @@ func (args *Args) Parse() {
 		log.Fatal("If you use the prama BED, The prama MASK FILE cannot be nil, Please check!")
 	} else if *args.MskFile != "" && *args.BedMode == "" {
 		log.Println("If you use the prama MASK FILE, and may expect that it works, You may indicate include/exclude the mask file in the prama BED")
-
 	} else if *args.BedMode != "include" && *args.BedMode != "exclude" && *args.BedMode != "" {
 		log.Fatal("The prama BED only has three options, include/exclude or nil(default),Please check!")
 	} else if *args.ScoreFile == "" {
@@ -39,7 +38,7 @@ func (args *Args) Parse() {
 	} else if *args.RefTag == "" {
 		log.Fatal("The prama REFERENCE TAG cannot be nil, Please check!")
 	} else if *args.ReadDepth != "true" && *args.ReadDepth != "false" {
-		log.Fatal("The depth received is not an Interger, Please check!")
+		log.Fatal("The depth received is just true/false, Please check!")
 	} else if *args.OutFile == "" {
 		log.Fatal("The Prama OUTPUT FILE cannot be nil, Please check!")
 	} else {
