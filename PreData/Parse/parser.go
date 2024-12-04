@@ -8,6 +8,7 @@ type Args struct {
 	OutGroup   *string
 	ModernFile *string
 	SepChar    *string
+	BcfTool    *string
 }
 
 func (args *Args) Parse() {
@@ -16,5 +17,6 @@ func (args *Args) Parse() {
 	args.OutGroup = flag.String("oug", "", "Outgroup pop name")
 	args.ModernFile = flag.String("mdv", "", "modern vcf file")
 	args.SepChar = flag.String("sep", "\t", "separation")
+	args.BcfTool = flag.String("btl", "", "BCFTOOLS")
 	flag.Parse()
 }
