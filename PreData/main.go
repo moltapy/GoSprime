@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	parse "gosprime/PreData/Parse"
 	"io"
 	"log"
@@ -46,7 +45,6 @@ func main() {
 		panic(err)
 	}
 	splitGroup(reader, args.OutGroup)
-	fmt.Println(set)
 }
 
 func splitGroup(reader *bufio.Reader, outgroup *string) {
@@ -67,7 +65,7 @@ func splitGroup(reader *bufio.Reader, outgroup *string) {
 					log.Fatal(err)
 				}
 				sampleList := path + "/sample.txt"
-				sampleWriter, err = os.OpenFile(sampleList, os.O_WRONLY|os.O_CREATE, 0666)
+				sampleWriter, err = os.Create(sampleList)
 				if err != nil {
 					panic(err)
 				}
