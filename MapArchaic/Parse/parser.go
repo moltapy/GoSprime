@@ -13,6 +13,7 @@ type Args struct {
 	VcfFile   *string
 	ScoreFile *string
 	RefTag    *string
+	OutFile   *string
 	ReadDepth int
 }
 
@@ -25,6 +26,7 @@ func (args *Args) Parse() {
 	args.MskFile = flag.String("msk", "", "Mask file, only one allowed as the input")
 	args.ScoreFile = flag.String("score", "", "Score file from Sprime")
 	args.RefTag = flag.String("tag", "", "Tag for the added column")
+	args.OutFile = flag.String("out", "", "Mapped score file path")
 	rdDepth = flag.String("depth", "", "Add read depth for match(optional)")
 	flag.Parse()
 
@@ -45,6 +47,8 @@ func (args *Args) Parse() {
 		if err != nil {
 			log.Fatal("The depth received is not an Interger, Please check!")
 		}
+	} else if *args.OutFile == "" {
+		log.Fatal("The Prama OUTPUT FILE cannot be nil, Please check!")
 	} else {
 		log.Default()
 	}

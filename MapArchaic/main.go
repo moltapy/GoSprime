@@ -160,7 +160,7 @@ func main() {
 
 	for {
 		lineBytes, err := reader.ReadBytes('\n')
-		if err != nil {
+		if err != nil && err != io.EOF {
 			log.Fatal("Problem occurred when reading the archaic genotype data line by line,Please check!", err)
 		}
 		lineStrip := strings.TrimRight(string(lineBytes), "\r\n")
@@ -196,5 +196,20 @@ func main() {
 				}
 			}
 		}
+
+		if err == io.EOF {
+			break
+		}
 	}
+	scoreFile, err = os.Open(*args.ScoreFile)
+	if err != nil {
+		panic(err)
+	}
+	defer scoreFile.Close()
+
+	outFile, err := os.Open(*args.OutFile)
+	if err != nil {
+		panic(err)
+	}
+	defer outFile.Close()
 }
