@@ -3,7 +3,6 @@ package parse
 import (
 	"flag"
 	"log"
-	"strconv"
 )
 
 type Args struct {
@@ -19,15 +18,13 @@ type Args struct {
 
 func (args *Args) Parse() {
 
-	var rdDepth *string
-
 	args.BedMode = flag.String("bed", "", "A flag for indicate how to use the prama MASK FILE,include for including all the points in the mask file, exclude for excluding, default for using all points in the score file")
 	args.SepChar = flag.String("sep", "\t", "Define the separator in the output file")
 	args.MskFile = flag.String("msk", "", "Mask file, only one allowed as the input")
 	args.ScoreFile = flag.String("score", "", "Score file from Sprime")
 	args.RefTag = flag.String("tag", "", "Tag for the added column")
 	args.OutFile = flag.String("out", "", "Mapped score file path")
-	rdDepth = flag.String("depth", "", "Add read depth for match(optional)")
+	args.ReadDepth = flag.String("depth", "false", "Show read depth in result file(optional), bool, true for showing, false for not showing")
 	flag.Parse()
 
 	if *args.BedMode != "" && *args.MskFile == "" {
@@ -41,12 +38,8 @@ func (args *Args) Parse() {
 		log.Fatal("The prama SCORE FILE cannot be nil, Please check!")
 	} else if *args.RefTag == "" {
 		log.Fatal("The prama REFERENCE TAG cannot be nil, Please check!")
-	} else if *rdDepth != "" {
-		var err error
-		args.ReadDepth, err = strconv.Atoi(*rdDepth)
-		if err != nil {
-			log.Fatal("The depth received is not an Interger, Please check!")
-		}
+	} else if *args.ReadDepth != "true" && *args.ReadDepth != "false" {
+		log.Fatal("The depth received is not an Interger, Please check!")
 	} else if *args.OutFile == "" {
 		log.Fatal("The Prama OUTPUT FILE cannot be nil, Please check!")
 	} else {
