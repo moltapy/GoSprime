@@ -201,6 +201,7 @@ func main() {
 			break
 		}
 	}
+
 	scoreFile, err = os.Open(*args.ScoreFile)
 	if err != nil {
 		panic(err)
@@ -212,4 +213,18 @@ func main() {
 		panic(err)
 	}
 	defer outFile.Close()
+
+	reader = bufio.NewReader(scoreFile)
+	writer := bufio.NewWriter(outFile)
+
+	header, err := reader.ReadBytes('\n')
+	if err != nil {
+		panic(err)
+	}
+	newHeader := string(header) + *args.SepChar + *args.RefTag
+	_, err = writer.WriteString(newHeader)
+	if err != nil {
+		panic(err)
+	}
+
 }
