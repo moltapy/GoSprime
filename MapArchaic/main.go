@@ -67,13 +67,17 @@ func main() {
 		}
 	}
 
-	var data = make([][3]string, maxLength+1)
+	var data = make([][3]byte, maxLength+1)
+	var depth = make([]int, maxLength+1)
+	for i := range depth {
+		depth[i] = -1
+	}
 	var start, end string
 	for i := 0; i <= maxLength; i++ {
 		if *args.BedMode == "include" {
-			data[i][0] = "0"
+			data[i][0] = '0'
 		} else {
-			data[i][0] = "1"
+			data[i][0] = '1'
 		}
 	}
 
@@ -116,9 +120,9 @@ func main() {
 					break
 				}
 				if *args.BedMode == "include" {
-					data[i][0] = "1"
+					data[i][0] = '1'
 				} else if *args.BedMode == "exclude" {
-					data[i][0] = "0"
+					data[i][0] = '0'
 				}
 			}
 		}
@@ -143,9 +147,54 @@ func main() {
 		if err != nil {
 			log.Fatal("Problem occurred when reading the archaic genotype file line by line,Please check!", err)
 		}
+
+		if string(lineBytes[1]) != "#" {
+			break
+		}
+	}
+
+	_, err = reader.ReadBytes('\n')
+	if err != nil {
+		log.Fatal("Problem occurred when skipping header in archaic genotype file, Please check!", err)
+	}
+
+	for {
+		lineBytes, err := reader.ReadBytes('\n')
+		if err != nil {
+			log.Fatal("Problem occurred when reading the archaic genotype data line by line,Please check!", err)
+		}
 		lineStrip := strings.TrimRight(string(lineBytes), "\r\n")
 		line := strings.Split(lineStrip, "\t")
+		pos, err := strconv.Atoi(line[1])
+		if err != nil {
+			log.Fatal("Problem occurred when transfering the second column(position) into Interger, Please check!", err)
+		}
 
-		if line[1]
+		if pos < maxLength {
+			if len(line[3]) < 2 && len(line[4]) < 2 {
+				if line[9][0] == '0' {
+					data[pos][1] = line[3][0]
+				}
+				if line[9][0] == '1' {
+					data[pos][1] = line[4][0]
+				}
+				if line[9][2] == '0' {
+					data[pos][2] = line[3][0]
+				}
+				if line[9][2] == '1' {
+					data[pos][2] = line[4][0]
+				}
+				depthIndex := strings.Index(line[7], "DP=")
+				if depthIndex != -1 {
+					depthIndex += 3
+					depth[pos], err = strconv.Atoi(line[7][depthIndex:])
+					if err != nil {
+						log.Fatal("Problem occurred when transfering read depth into Interger,Please check!")
+					}
+				} else {
+					depth[pos] = 1
+				}
+			}
+		}
 	}
 }
