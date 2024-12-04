@@ -15,13 +15,16 @@ const NOTCOMP = "notcomp"
 const MATCH = "match"
 const MISMATCH = "mismatch"
 
-func main() {
-	// Parser part
-	var args = parse.Args{}
+var args parse.Args
+var maxLength, validLines int
+var start, end string
+
+func init() {
+	args = parse.Args{}
 	args.Parse()
+}
 
-	var maxLength, validLines int
-
+func main() {
 	// Open score file
 	scoreFile, err := os.Open(*args.ScoreFile)
 	if err != nil {
@@ -76,7 +79,6 @@ func main() {
 	for i := range depth {
 		depth[i] = -1
 	}
-	var start, end string
 	for i := 0; i <= maxLength; i++ {
 		if *args.BedMode == "include" {
 			data[i][0] = '0'
