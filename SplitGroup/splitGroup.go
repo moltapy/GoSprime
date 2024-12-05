@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"log"
 	"os"
@@ -162,6 +163,11 @@ func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
 
 	annotateVcf.Stdout = annotatedFile
 
+	var viewSamplesStderr, viewSnpsStderr, annotateVcfStderr bytes.Buffer
+	viewSamples.Stderr = &viewSamplesStderr
+	viewSnps.Stderr = &viewSnpsStderr
+	annotateVcf.Stderr = &annotateVcfStderr
+
 	if err := viewSamples.Start(); err != nil {
 		log.Fatal("Problem occurred when starting view samples,Please check!", err)
 	}
@@ -173,13 +179,13 @@ func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
 	}
 
 	if err := viewSamples.Wait(); err != nil {
-		log.Fatal("Problem occurred when processing view samples,Please check!", err)
+		log.Fatalf("Problem occurred when processing view samples,err =%v,stderr:%s", err, viewSamplesStderr.String())
 	}
 	if err := viewSnps.Wait(); err != nil {
-		log.Fatal("Problem occurred when processing view snps, Please check!", err)
+		log.Fatalf("Problem occurred when processing view snps, err=%v,stderr:%s", err, viewSnpsStderr.String())
 	}
 	if err := annotateVcf.Wait(); err != nil {
-		log.Fatal("Problem occurred when processing bcftools annotate, Please check!", err)
+		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
 	}
 	// take place
 	log.Printf("Success!")
