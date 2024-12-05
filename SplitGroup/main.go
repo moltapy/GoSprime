@@ -48,7 +48,7 @@ func main() {
 	}
 	splitGroup(reader, args.OutGroup)
 
-	for _, subgroup := range outGroup {
+	for subgroup := range set {
 		waitSpGroup.Add(1)
 		go splitVcfFile(subgroup)
 		waitSpGroup.Wait()
