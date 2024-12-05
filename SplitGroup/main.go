@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	parse "gosprime/PreData/Parse"
+	parse "gosprime/SplitGroup/Parse"
 	"io"
 	"log"
 	"os"
