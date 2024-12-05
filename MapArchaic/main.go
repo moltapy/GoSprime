@@ -237,6 +237,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	err = writer.Flush()
+	if err != nil {
+		log.Fatal("Problem occurred when flushing the header in buffer into file,Please check!", err)
+	}
 
 	var snps = make([]string, 2)
 	for {
@@ -275,10 +279,19 @@ func main() {
 			}
 			writeLine += "\n"
 		}
+		_, err = writer.WriteString(writeLine)
+		if err != nil {
+			log.Fatal("Problem occurred when write lines into buffer,Please check!", err)
+		}
 
 		if err == io.EOF {
 			log.Printf("Mapping %s Finished", *args.RefTag)
 			break
 		}
+	}
+
+	err = writer.Flush()
+	if err != nil {
+		log.Fatal("Problem occurred when flushing lines from buffer into file,Please check!", err)
 	}
 }
