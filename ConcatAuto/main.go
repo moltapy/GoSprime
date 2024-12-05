@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -56,10 +57,10 @@ func concatAutos(pop string) {
 
 	var fileList string
 	for chrom := 1; chrom <= 22; chrom++ {
-		fileList += *args.WorkPath + "/" + pop + "/" + strings.Replace(*args.VcfName, "{chrom}", string(rune(chrom)), 1) + " "
+		fileList += *args.WorkPath + "/" + pop + "/" + strings.Replace(*args.VcfName, "{chrom}", strconv.Itoa(chrom), 1) + " "
 	}
 
-	concatCommand := exec.Command(*args.BcfTool, "concat", "--file-list", strings.TrimRight(fileList, " "),
+	concatCommand := exec.Command(*args.BcfTool, "concat", strings.TrimRight(fileList, " "),
 		"--naive-force", "--output-type", "z", "--output", *args.ConcatedFile)
 
 	if err := concatCommand.Start(); err != nil {
