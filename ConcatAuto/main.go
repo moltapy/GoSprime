@@ -7,9 +7,11 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
+	"fmt"
+	"strconv"
+	"bytes"
 )
 
 var args = parse.Args{}
@@ -40,7 +42,7 @@ func readPops(path string) []string {
 		lineBytes, err := reader.ReadBytes('\n')
 		line := strings.TrimRight(string(lineBytes), "\r\n")
 		if err != nil && err != io.EOF {
-			log.Fatal(err)
+			log.Fatal("Problem occurred when read from reader",err)
 		}
 		if line != "" {
 			popGroups = append(popGroups, line)
@@ -55,20 +57,24 @@ func readPops(path string) []string {
 func concatAutos(pop string) {
 	defer waitGroup.Done()
 
-	var fileList string
+	var pramaList = []string{"concat"}
+	pathPrefix := *args.WorkPath + "/" + pop + "/"
 	for chrom := 1; chrom <= 22; chrom++ {
-		fileList += *args.WorkPath + "/" + pop + "/" + strings.Replace(*args.VcfName, "{chrom}", strconv.Itoa(chrom), 1) + " "
+		pramaList = append(pramaList, pathPrefix + strings.Replace(*args.VcfName, "{chrom}", strconv.Itoa(chrom), 1))
 	}
-
-	concatCommand := exec.Command(*args.BcfTool, "concat", strings.TrimRight(fileList, " "),
-		"--naive-force", "--output-type", "z", "--output", *args.ConcatedFile)
-
+	pramaList = append(pramaList,"--naive-force","--output-type","z","--output",pathPrefix + *args.ConcatedFile)
+	fmt.Println(pramaList)
+	concatCommand := exec.Command(*args.BcfTool, pramaList...)
+	
+	var stderr bytes.Buffer
+	concatCommand.Stderr = &stderr
+	
 	if err := concatCommand.Start(); err != nil {
-		log.Fatal(err)
+		log.Fatal("Problem occurred when start concatCommand",err)
 	}
 
 	if err := concatCommand.Wait(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Problem occurred when wait concatCommand,err=%v,stderr :%s",err,stderr.String())
 	}
 
 	log.Println("Success!")
