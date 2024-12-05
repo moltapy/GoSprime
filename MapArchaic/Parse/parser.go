@@ -47,11 +47,11 @@ func (args *Args) Parse() {
 			log.Default()
 		}
 	} else if len(os.Args) == 1 {
-		exePath, err := os.Executable()
+		programPath, err := os.Executable()
 		if err != nil {
 			log.Fatal("Problem occurred when getting abspath, Please report this bug!")
 		}
-		fmt.Printf("Usage of %s:\n", exePath)
+		fmt.Printf("Usage of %s:\n", programPath)
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
