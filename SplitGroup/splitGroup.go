@@ -142,7 +142,7 @@ func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
 	if err != nil {
 		log.Fatal("Problem occurred when setting Stdin for snp view,Please check!", err)
 	}
-	cmdReader, err = viewSamples.StdoutPipe()
+	cmdReader, err = viewSnps.StdoutPipe()
 	if err != nil {
 		log.Fatal("Problem occurred when creating StdoutPipe for snp view,Please check!", err)
 	}
