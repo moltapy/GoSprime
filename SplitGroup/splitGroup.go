@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -118,8 +119,8 @@ func writeOutGroup(outgroup []string) {
 func splitVcfFile(subPop string) {
 	defer waitSpGroup.Done()
 	for chrom := 1; chrom <= 22; chrom++ {
-		vcfFile := strings.Replace(*args.ModernFile, "{chrom}", string(rune(chrom)), 1)
-		outFile := strings.Replace("chr{chrom}.vcf.gz", "{chrom}", string(rune(chrom)), 1)
+		vcfFile := strings.Replace(*args.ModernFile, "{chrom}", strconv.Itoa(chrom), 1)
+		outFile := strings.Replace("chr{chrom}.vcf.gz", "{chrom}", strconv.Itoa(chrom), 1)
 
 		sampleFile := *args.WorkPath + "/" + subPop + "/sample.txt"
 		waitBcfGroup.Add(1)
