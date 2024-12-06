@@ -54,7 +54,6 @@ func main() {
 		threadNum += 1
 		go splitVcfFile(subgroup)
 		if threadNum%*args.ParaNum == 0 {
-			log.Printf("Start Processing bcftools concat: %s with %s", subgroup, *args.OutGroup)
 			waitSpGroup.Wait()
 		}
 	}

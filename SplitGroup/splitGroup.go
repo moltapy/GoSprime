@@ -119,6 +119,8 @@ func writeOutGroup(outgroup []string) {
 
 func splitVcfFile(subPop string) {
 
+	log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
+
 	filePrefix := *args.WorkPath + "/" + subPop
 	defer waitSpGroup.Done()
 	for chrom := 1; chrom <= 22; chrom++ {
