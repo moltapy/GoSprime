@@ -110,6 +110,6 @@ func writeOutGroup(outgroup []string) {
 	}
 	err = writer.Flush()
 	if err != nil {
-		log.Fatal("Problem occurred when flushing buffer into file: %v", err)
+		log.Fatalf("Problem occurred when flushing buffer into file: %v", err)
 	}
 }
