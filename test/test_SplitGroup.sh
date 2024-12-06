@@ -1,5 +1,4 @@
 #!bin/bash
-conda activate bcftools
 cd /public/group_data_2023/Heyuan/Sprime/output/subpops/GoSprime
 go build -o splitGroup ./SplitGroup
 
