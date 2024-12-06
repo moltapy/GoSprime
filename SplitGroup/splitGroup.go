@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -119,7 +120,7 @@ func writeOutGroup(outgroup []string) {
 
 func splitVcfFile(subPop string) {
 
-	logChan := make(chan string, 22)
+	logChan := make(chan []string, *args.ParaNum)
 
 	//startInfo := "Start Processing bcftools concat: " + subPop + " with " + *args.OutGroup
 	//logChan <- startInfo
@@ -137,14 +138,18 @@ func splitVcfFile(subPop string) {
 	}
 	waitBcfGroup.Wait()
 	// consider range
-	for i := 0; i < 22; i++ {
-		log.Println(<-logChan)
+
+	for info := range logChan {
+		for _, logInfo := range info {
+			log.Println(logInfo)
+		}
+		fmt.Println()
 	}
 
 	close(logChan)
 }
 
-func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string, logChan chan string) {
+func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string, logChan chan []string) {
 	defer waitBcfGroup.Done()
 
 	viewSamples := exec.Command(tool, "view", "--samples-file", sampleFile, vcfFile)
@@ -201,8 +206,9 @@ func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string, logChan chan
 	if err := annotateVcf.Wait(); err != nil {
 		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
 	}
-
+	var finishInfos []string
 	finishInfo := "Success Split " + vcfFile + " into " + outFile + ",Extracted " + subPop + " merge with " + *args.OutGroup
-	logChan <- finishInfo
+	finishInfos = append(finishInfos, finishInfo)
+	logChan <- finishInfos
 	//log.Printf("Success Split %s into %s,Extracted %s merge with %s", vcfFile, outFile, subPop, *args.OutGroup)
 }
