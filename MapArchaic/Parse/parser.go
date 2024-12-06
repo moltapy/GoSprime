@@ -19,9 +19,8 @@ type Args struct {
 }
 
 func (args *Args) Parse() {
-
-	args.BedMode = flag.String("bed", "", "A flag for indicate how to use the prama MASK FILE,include for including all the points in the mask file, exclude for excluding, default for using all points in the score file")
-	args.SepChar = flag.String("sep", "\t", "Define the separator in the output file")
+	args.BedMode = flag.String("bed", "", "Tag for indicating way to use the prama MASK FILE, use 'include' for including points in mask file,'exclude' for excluding points in mask file(default:Include all points in score file)")
+	args.SepChar = flag.String("sep", "\t", "Separator of the output file")
 	args.MskFile = flag.String("msk", "", "Mask file, only one allowed as the input")
 	args.ScoreFile = flag.String("score", "", "Score file from Sprime")
 	args.RefTag = flag.String("tag", "", "Tag for the added column")
