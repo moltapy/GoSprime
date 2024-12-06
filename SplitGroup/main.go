@@ -50,7 +50,8 @@ func main() {
 
 	for subgroup := range set {
 		waitSpGroup.Add(1)
+		log.Printf("Start Processing bcftools concat: %s with %s", subgroup, *args.OutGroup)
 		go splitVcfFile(subgroup)
-		waitSpGroup.Wait()
 	}
+	waitSpGroup.Wait()
 }
