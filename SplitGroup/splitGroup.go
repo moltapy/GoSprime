@@ -188,5 +188,5 @@ func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
 		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
 	}
 	// take place
-	log.Printf("Success!")
+	log.Printf("Success Split %s into %s", vcfFile, outFile)
 }
