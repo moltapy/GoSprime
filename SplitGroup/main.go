@@ -49,7 +49,7 @@ func main() {
 	splitGroup(reader, args.OutGroup)
 
 	var threadNum = 0
-	var popLogChan chan string = make(chan string, (*args.ParaNum+1)*22)
+	var popLogChan chan string = make(chan string, (*args.ParaNum+8)*(22+8))
 	for subgroup := range set {
 		waitSpGroup.Add(1)
 		threadNum += 1
