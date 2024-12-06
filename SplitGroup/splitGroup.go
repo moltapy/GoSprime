@@ -118,19 +118,21 @@ func writeOutGroup(outgroup []string) {
 }
 
 func splitVcfFile(subPop string) {
+
+	filePrefix := *args.WorkPath + "/" + subPop
 	defer waitSpGroup.Done()
 	for chrom := 1; chrom <= 22; chrom++ {
 		vcfFile := strings.Replace(*args.ModernFile, "{chrom}", strconv.Itoa(chrom), 1)
-		outFile := *args.WorkPath + strings.Replace("chr{chrom}.vcf.gz", "{chrom}", strconv.Itoa(chrom), 1)
+		outFile := filePrefix + "/" + strings.Replace("chr{chrom}.vcf.gz", "{chrom}", strconv.Itoa(chrom), 1)
 
-		sampleFile := *args.WorkPath + "/" + subPop + "/sample.txt"
+		sampleFile := filePrefix + "/sample.txt"
 		waitBcfGroup.Add(1)
-		go bcftoolExec(*args.BcfTool, vcfFile, outFile, sampleFile)
+		go bcftoolExec(*args.BcfTool, subPop, vcfFile, outFile, sampleFile)
 	}
 	waitBcfGroup.Wait()
 }
 
-func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
+func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
 	defer waitBcfGroup.Done()
 
 	viewSamples := exec.Command(tool, "view", "--samples-file", sampleFile, vcfFile)
@@ -188,5 +190,5 @@ func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
 		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
 	}
 	// take place
-	log.Printf("Success Split %s into %s", vcfFile, outFile)
+	log.Printf("Success Split %s into %s,Extracted %s merge with %s", vcfFile, outFile, subPop, *args.OutGroup)
 }
