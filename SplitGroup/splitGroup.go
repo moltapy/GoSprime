@@ -126,8 +126,8 @@ func splitVcfFile(subPop string) {
 		sampleFile := *args.WorkPath + "/" + subPop + "/sample.txt"
 		waitBcfGroup.Add(1)
 		go bcftoolExec(*args.BcfTool, vcfFile, outFile, sampleFile)
-		waitBcfGroup.Wait()
 	}
+	waitBcfGroup.Wait()
 }
 
 func bcftoolExec(tool, vcfFile, outFile, sampleFile string) {
