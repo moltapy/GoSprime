@@ -121,9 +121,9 @@ func splitVcfFile(subPop string) {
 
 	logChan := make(chan string)
 
-	startInfo := "Start Processing bcftools concat: " + subPop + " with " + *args.OutGroup
-	logChan <- startInfo
-	//log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
+	//startInfo := "Start Processing bcftools concat: " + subPop + " with " + *args.OutGroup
+	//logChan <- startInfo
+	log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
 
 	filePrefix := *args.WorkPath + "/" + subPop
 	defer waitSpGroup.Done()
