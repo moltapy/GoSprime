@@ -48,10 +48,15 @@ func main() {
 	}
 	splitGroup(reader, args.OutGroup)
 
+	var threadNum = 0
 	for subgroup := range set {
 		waitSpGroup.Add(1)
+		threadNum += 1
 		log.Printf("Start Processing bcftools concat: %s with %s", subgroup, *args.OutGroup)
 		go splitVcfFile(subgroup)
+	}
+	if threadNum%*args.ParaNum == 0 {
+		waitSpGroup.Wait()
 	}
 	waitSpGroup.Wait()
 }

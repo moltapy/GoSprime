@@ -15,6 +15,7 @@ type Args struct {
 	ModernFile *string
 	SepChar    *string
 	BcfTool    *string
+	ParaNum    *int
 }
 
 func (args *Args) Parse() {
@@ -28,6 +29,7 @@ func (args *Args) Parse() {
 	args.ModernFile = flag.String("m", "", "Path of VCF files containing gene information of modern humans, chromosome index should be taken place by '{chrom}' and should use '.vcf.gz' format")
 	args.SepChar = flag.String("c", "\t", "Separator of the sample list file")
 	args.BcfTool = flag.String("b", "bcftools", "Path of your bcftools, should be the absolute path to your BCFtools except you use conda and have activated bcftools environment")
+	args.ParaNum = flag.Int("p", 4, "Number of the parallel threads when dealing with subpopulations, you will open p * 22(the number of chromosomes) threads in total at one time")
 	flag.Parse()
 
 	if len(os.Args) > 2 {
