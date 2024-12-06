@@ -34,14 +34,14 @@ func readPops(path string) []string {
 	var popGroups []string
 	popList, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("Problem occurred when open population list file, Please check!\nERROR:%s\n", err)
+		log.Fatalf("Problem occurred when opening population list file: %v", err)
 	}
 	reader := bufio.NewReader(popList)
 	for {
 		lineBytes, err := reader.ReadBytes('\n')
 		line := strings.TrimRight(string(lineBytes), "\r\n")
 		if err != nil && err != io.EOF {
-			log.Fatalf("Problem occurred when read from reader\nERROR:%s\n", err)
+			log.Fatalf("Problem occurred when reading from buffer: %v", err)
 		}
 		if line != "" {
 			popGroups = append(popGroups, line)
@@ -69,11 +69,11 @@ func concatAutos(pop string) {
 
 	log.Printf("Bcftools concat VCF files in %s start!\n", pop)
 	if err := concatCommand.Start(); err != nil {
-		log.Fatal("Problem occurred when start concatCommand", err)
+		log.Fatalf("Problem occurred when starting concatCommand: %v", err)
 	}
 
 	if err := concatCommand.Wait(); err != nil {
-		log.Fatalf("Problem occurred when wait concatCommand,err=%v,stderr :%s", err, stderr.String())
+		log.Fatalf("Problem occurred when executing concatCommand: %v,stderr: %s", err, stderr.String())
 	}
 
 	log.Printf("Bcftools concat success in %s!\n", pop)

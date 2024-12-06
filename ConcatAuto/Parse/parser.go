@@ -18,7 +18,7 @@ type Args struct {
 func (args *Args) Parse() {
 	directory, err := os.Getwd()
 	if err != nil {
-		log.Printf("Fail to get current working path, Please check! \nError:%s\n", err)
+		log.Printf("Fail to get current working path: %v", err)
 	}
 	args.WorkPath = flag.String("w", directory, "Path of the working directory, should be the PARENT DIRECTORY of the subpopulation dirs")
 	args.PopList = flag.String("p", "", "Path of the text file with names of subpopulation, per name at each line")
@@ -40,7 +40,7 @@ func (args *Args) Parse() {
 	} else if len(os.Args) == 1 {
 		programPath, err := os.Executable()
 		if err != nil {
-			log.Fatalf("Failed to get the program path, Please check!\n ERROR:%s\n", err)
+			log.Fatalf("Failed to get the program path: %v", err)
 		}
 		fmt.Printf("Usage of %s:\n", programPath)
 		flag.PrintDefaults()
