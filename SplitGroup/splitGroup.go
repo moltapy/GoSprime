@@ -119,7 +119,11 @@ func writeOutGroup(outgroup []string) {
 
 func splitVcfFile(subPop string) {
 
-	log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
+	logChan := make(chan string)
+
+	startInfo := "Start Processing bcftools concat: " + subPop + " with " + *args.OutGroup
+	logChan <- startInfo
+	//log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
 
 	filePrefix := *args.WorkPath + "/" + subPop
 	defer waitSpGroup.Done()
@@ -129,12 +133,18 @@ func splitVcfFile(subPop string) {
 
 		sampleFile := filePrefix + "/sample.txt"
 		waitBcfGroup.Add(1)
-		go bcftoolExec(*args.BcfTool, subPop, vcfFile, outFile, sampleFile)
+		go bcftoolExec(*args.BcfTool, subPop, vcfFile, outFile, sampleFile, logChan)
 	}
 	waitBcfGroup.Wait()
+	// consider range
+	for i := 0; i < 22; i++ {
+		log.Println(<-logChan)
+	}
+
+	close(logChan)
 }
 
-func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
+func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string, logChan chan string) {
 	defer waitBcfGroup.Done()
 
 	viewSamples := exec.Command(tool, "view", "--samples-file", sampleFile, vcfFile)
@@ -191,6 +201,8 @@ func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
 	if err := annotateVcf.Wait(); err != nil {
 		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
 	}
-	// take place
-	log.Printf("Success Split %s into %s,Extracted %s merge with %s", vcfFile, outFile, subPop, *args.OutGroup)
+
+	finishInfo := "Success Split " + vcfFile + " into " + outFile + ",Extracted " + subPop + " merge with " + *args.OutGroup
+	logChan <- finishInfo
+	//log.Printf("Success Split %s into %s,Extracted %s merge with %s", vcfFile, outFile, subPop, *args.OutGroup)
 }
