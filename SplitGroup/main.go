@@ -49,13 +49,22 @@ func main() {
 	splitGroup(reader, args.OutGroup)
 
 	var threadNum = 0
+	var popLogChan chan string = make(chan string, (*args.ParaNum+1)*22)
 	for subgroup := range set {
 		waitSpGroup.Add(1)
 		threadNum += 1
-		go splitVcfFile(subgroup)
+		go splitVcfFile(subgroup, popLogChan)
 		if threadNum%*args.ParaNum == 0 {
 			waitSpGroup.Wait()
+			for vcfLogInfo := range popLogChan {
+				log.Print(vcfLogInfo)
+			}
 		}
 	}
 	waitSpGroup.Wait()
+	for popLogInfo := range popLogChan {
+		log.Print(popLogInfo)
+	}
+
+	close(popLogChan)
 }
