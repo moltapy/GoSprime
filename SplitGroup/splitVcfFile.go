@@ -32,28 +32,28 @@ func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
 	viewSamples := exec.Command(tool, "view", "--samples-file", sampleFile, vcfFile)
 	cmdReader, err := viewSamples.StdoutPipe()
 	if err != nil {
-		log.Fatal("Problem occurred when creating StdoutPipe for sample view", err)
+		log.Fatalf("Problem occurred when creating StdoutPipe for sample view: %v", err)
 	}
 
 	viewSnps := exec.Command(tool, "view", "-c1", "-m2", "-M2", "-v", "snps")
 	viewSnps.Stdin = cmdReader
 	if err != nil {
-		log.Fatal("Problem occurred when setting Stdin for snp view,Please check!", err)
+		log.Fatalf("Problem occurred when setting Stdin for snp view: %v", err)
 	}
 	cmdReader, err = viewSnps.StdoutPipe()
 	if err != nil {
-		log.Fatal("Problem occurred when creating StdoutPipe for snp view,Please check!", err)
+		log.Fatalf("Problem occurred when creating StdoutPipe for snp view: %v", err)
 	}
 	annotateVcf := exec.Command(tool, "annotate", "-x", "INFO,^FORMAT/GT", "-Oz")
 
 	annotateVcf.Stdin = cmdReader
 	if err != nil {
-		log.Fatal("Problem occurred when setting Stdin for bcftools annotate,Please check!", err)
+		log.Fatalf("Problem occurred when setting Stdin for bcftools annotate: %v", err)
 	}
 
 	annotatedFile, err := os.Create(outFile)
 	if err != nil {
-		log.Fatal("Problem occurred when creating output file", err)
+		log.Fatalf("Problem occurred when creating output file %v : %v", outFile, err)
 	}
 	defer annotatedFile.Close()
 
@@ -65,23 +65,23 @@ func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
 	annotateVcf.Stderr = &annotateVcfStderr
 
 	if err := viewSamples.Start(); err != nil {
-		log.Fatal("Problem occurred when starting view samples,Please check!", err)
+		log.Fatalf("Problem occurred when starting view samples: %v", err)
 	}
 	if err := viewSnps.Start(); err != nil {
-		log.Fatal("Problem occurred when starting view snps,Please check!", err)
+		log.Fatalf("Problem occurred when starting view snps: %v", err)
 	}
 	if err := annotateVcf.Start(); err != nil {
-		log.Fatal("Problem occurred when starting annotate vcfs,Please check!", err)
+		log.Fatalf("Problem occurred when starting annotate vcfs: %v", err)
 	}
 
 	if err := viewSamples.Wait(); err != nil {
-		log.Fatalf("Problem occurred when processing view samples,err =%v,stderr:%s", err, viewSamplesStderr.String())
+		log.Fatalf("Problem occurred when processing view samples: %v,stderr :%s", err, viewSamplesStderr.String())
 	}
 	if err := viewSnps.Wait(); err != nil {
-		log.Fatalf("Problem occurred when processing view snps, err=%v,stderr:%s", err, viewSnpsStderr.String())
+		log.Fatalf("Problem occurred when processing view snps: %v,stderr: %s", err, viewSnpsStderr.String())
 	}
 	if err := annotateVcf.Wait(); err != nil {
-		log.Fatalf("Problem occurred when processing bcftools annotate, err=%v,stderr:%s", err, annotateVcfStderr.String())
+		log.Fatalf("Problem occurred when processing bcftools annotate: %v,stderr: %s", err, annotateVcfStderr.String())
 	}
 	// take place
 	log.Printf("Success Split %s into %s,Extracted %s merge with %s", vcfFile, outFile, subPop, *args.OutGroup)

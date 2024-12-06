@@ -13,7 +13,7 @@ func splitGroup(reader *bufio.Reader, outgroup *string) {
 	for {
 		lineBytes, err := reader.ReadBytes('\n')
 		if err != nil && err != io.EOF {
-			log.Fatal("Problem occurred when reading individuals of sample list file,Please check!", err)
+			log.Fatalf("Problem occurred when reading individuals of sample list file: %v", err)
 		}
 		lineStrip := strings.TrimRight(string(lineBytes), "\r\n")
 		// avoid the final blank lines
@@ -24,18 +24,18 @@ func splitGroup(reader *bufio.Reader, outgroup *string) {
 				path := *args.WorkPath + "/" + line[1]
 				err = os.MkdirAll(path, 0777)
 				if err != nil {
-					log.Fatal("Problem occurred when making directory of subgroups,Please check!", err)
+					log.Fatalf("Problem occurred when making directory of subgroups: %v", err)
 				}
 				sampleList := path + "/sample.txt"
 				sampleWriter, err = os.Create(sampleList)
 				if err != nil {
-					log.Fatal("Problem occurred when create sample file for each group, Please check!", err)
+					log.Fatalf("Problem occurred when create sample file for each group: %v", err)
 				}
 				defer sampleWriter.Close()
 				writer := bufio.NewWriter(sampleWriter)
 				_, err = writer.WriteString(line[0] + "\n")
 				if err != nil {
-					log.Fatal("Problem occurred when writing into buffer, Please check!", err)
+					log.Fatalf("Problem occurred when writing sample ID into buffer: %v", err)
 				}
 				err = writer.Flush()
 				if err != nil {
@@ -47,13 +47,13 @@ func splitGroup(reader *bufio.Reader, outgroup *string) {
 				sampleList := path + "/sample.txt"
 				sampleWriter, err = os.OpenFile(sampleList, os.O_APPEND|os.O_RDWR, 0666)
 				if err != nil {
-					panic(err)
+					log.Fatalf("Problem occurred when opening %v for writing: %v", sampleList, err)
 				}
 				defer sampleWriter.Close()
 				writer := bufio.NewWriter(sampleWriter)
 				_, err = writer.WriteString(line[0] + "\n")
 				if err != nil {
-					panic(err)
+					log.Fatalf("Problem occurred when writing %v into buffer: %v", line[0], err)
 				}
 
 				err = writer.Flush()
@@ -73,13 +73,13 @@ func splitGroup(reader *bufio.Reader, outgroup *string) {
 		subGroupList := *args.WorkPath + "/" + subGroup + "/sample.txt"
 		subGroupFile, err := os.OpenFile(subGroupList, os.O_APPEND|os.O_RDWR, 0666)
 		if err != nil {
-			log.Fatal("Problem occurred when open subgroup sample file, Please check!", err)
+			log.Fatalf("Problem occurred when opening subgroup sample file %v: %v", subGroupList, err)
 		}
 		writer := bufio.NewWriter(subGroupFile)
 		waitGroup.Add(1)
 		go pasteOutGroup(writer, outGroup)
-		waitGroup.Wait()
 	}
+	waitGroup.Wait()
 
 	writeOutGroup(outGroup)
 }
@@ -88,11 +88,11 @@ func pasteOutGroup(writer *bufio.Writer, outgroup []string) {
 	defer waitGroup.Done()
 	_, err := writer.WriteString(strings.Join(outgroup, "\n"))
 	if err != nil {
-		log.Fatal("Problem occurred when paste outgroup,Please check!", err)
+		log.Fatalf("Problem occurred when pasting outgroup samples: %v", err)
 	}
 	err = writer.Flush()
 	if err != nil {
-		log.Fatal("Problem occurred when flush buffer,Please check!", err)
+		log.Fatalf("Problem occurred when flushing buffer into file: %v", err)
 	}
 }
 
@@ -100,16 +100,16 @@ func writeOutGroup(outgroup []string) {
 	path := *args.WorkPath + "/outgroup.txt"
 	outGroupWriter, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
-		log.Fatal("Problem occurred when create outgroup sample list, Please check!", err)
+		log.Fatalf("Problem occurred when creating outgroup sample list file %v: %v", path, err)
 	}
 	writer := bufio.NewWriter(outGroupWriter)
 
 	_, err = writer.WriteString(strings.Join(outgroup, "\n"))
 	if err != nil {
-		log.Fatal("Problem occurred when write outgroup,Please check!", err)
+		log.Fatalf("Problem occurred when writing outgroup samples into buffer: %v", err)
 	}
 	err = writer.Flush()
 	if err != nil {
-		log.Fatal("Problem occurred when flush buffer,Please check!", err)
+		log.Fatal("Problem occurred when flushing buffer into file: %v", err)
 	}
 }
