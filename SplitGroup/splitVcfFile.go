@@ -11,6 +11,8 @@ import (
 
 func splitVcfFile(subPop string) {
 
+	log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
+
 	filePrefix := *args.WorkPath + "/" + subPop
 	defer waitSpGroup.Done()
 	for chrom := 1; chrom <= 22; chrom++ {
@@ -71,8 +73,6 @@ func bcftoolExec(tool, subPop, vcfFile, outFile, sampleFile string) {
 	if err := annotateVcf.Start(); err != nil {
 		log.Fatal("Problem occurred when starting annotate vcfs,Please check!", err)
 	}
-
-	log.Printf("Start Processing bcftools concat: %s with %s", subPop, *args.OutGroup)
 
 	if err := viewSamples.Wait(); err != nil {
 		log.Fatalf("Problem occurred when processing view samples,err =%v,stderr:%s", err, viewSamplesStderr.String())
