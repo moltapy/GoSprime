@@ -119,7 +119,7 @@ func writeOutGroup(outgroup []string) {
 
 func splitVcfFile(subPop string) {
 
-	logChan := make(chan string)
+	logChan := make(chan string, 22)
 
 	//startInfo := "Start Processing bcftools concat: " + subPop + " with " + *args.OutGroup
 	//logChan <- startInfo
