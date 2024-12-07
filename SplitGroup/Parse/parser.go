@@ -19,10 +19,12 @@ type Args struct {
 }
 
 func (args *Args) Parse() {
+
 	directory, err := os.Getwd()
 	if err != nil {
-		log.Printf("Fail to get current working path, Please check! \nError:%s\n", err)
+		log.Printf("Fail to get current working path, Please check! \nError: %s\n", err)
 	}
+
 	args.WorkPath = flag.String("w", directory, "Path for saving VCF files per subgroup")
 	args.SampleFile = flag.String("s", "", "Path of the text file saving all individuals and their populations")
 	args.OutGroup = flag.String("o", "", "Name of the outgroup, selected outgroup will merge into other subgroups and not be splited separately")
@@ -47,7 +49,7 @@ func (args *Args) Parse() {
 	} else if len(os.Args) == 1 {
 		programPath, err := os.Executable()
 		if err != nil {
-			log.Fatalf("Failed to get the program path, Please check!\n ERROR:%s\n", err)
+			log.Fatalf("Failed to get the program path, Please check!\n ERROR: %s\n", err)
 		}
 		fmt.Printf("Usage of %s:\n", programPath)
 		flag.PrintDefaults()
