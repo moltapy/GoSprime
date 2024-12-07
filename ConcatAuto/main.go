@@ -26,8 +26,8 @@ func main() {
 	for _, subPop := range subGroups {
 		waitGroup.Add(1)
 		go concatAutos(subPop)
-		waitGroup.Wait()
 	}
+	waitGroup.Wait()
 }
 
 func readPops(path string) []string {
