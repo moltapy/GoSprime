@@ -73,7 +73,7 @@ func concatAutos(pop string) {
 	}
 
 	if err := concatCommand.Wait(); err != nil {
-		log.Fatalf("Problem occurred when executing concatCommand: %v,stderr: %s", err, stderr.String())
+		log.Printf("Problem occurred when executing concatCommand: %v,stderr: %s", err, stderr.String())
 	}
 
 	log.Printf("Bcftools concat success in %s!\n", pop)
