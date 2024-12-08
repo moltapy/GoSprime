@@ -75,7 +75,7 @@ func runSprime(pop string) {
 
 	log.Printf("Start sprime process in %s!", pop)
 
-	err := os.MkdirAll(*args.WorkPath+"/"+pop+"SprimeScore", os.ModePerm)
+	err := os.MkdirAll(*args.WorkPath+"/"+pop+"/SprimeScore", os.ModePerm)
 	if err != nil {
 		log.Fatalf("Problem occurred when creating directory 'SprimeScore' to save score files: %v", err)
 	}
