@@ -1,4 +1,4 @@
-package genscore
+package parse
 
 import (
 	"flag"
@@ -15,6 +15,7 @@ type Args struct {
 	PopList      *string
 	MapFile      *string
 	OutGroupFile *string
+	GenoPath     *string
 	OutFileName  *string
 }
 
@@ -29,7 +30,8 @@ func (args *Args) Parse() {
 	args.SprimeTool = flag.String("j", "", "Path of SPRIME JAR file")
 	args.PopList = flag.String("p", "", "Path of SUBPPULATION LIST file, should contain one subpopulation name per line")
 	args.MapFile = flag.String("m", "", "Path of GENETIC MAP file")
-	args.OutGroupFile = flag.String("g", "", "Path of OUTGROUP SAMPLE LIST file, should contain one sample ID per line")
+	args.OutGroupFile = flag.String("f", "", "Path of OUTGROUP SAMPLE LIST file, should contain one sample ID per line")
+	args.GenoPath = flag.String("g", "", "Path of BCFTOOLS CONCATED VCF file, should contain all variants in 22 chromosomes and start from the subdirectory of the subpopulation directory")
 	args.OutFileName = flag.String("o", "SprimeOut_chr{chrom}", "Name of OUTPUT FILE PREFIX, should use {chrom} to take place for chromosome index")
 	flag.Parse()
 
@@ -51,6 +53,9 @@ func (args *Args) Parse() {
 		}
 		if *args.OutGroupFile == "" {
 			log.Fatal("The prama OUTGROUP SAMPLE LIST FILE equals a nil value, Please check!")
+		}
+		if *args.GenoPath == "" {
+			log.Fatal("The prama BCFTOOLS CONCATED VCF FILE PATH equals a nil value, Please check!")
 		}
 		if *args.OutFileName == "" {
 			log.Fatal("The prama OUTPUT FILE NAME PREFIX equals a nil value, Please check!")

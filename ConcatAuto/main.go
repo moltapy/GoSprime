@@ -69,11 +69,11 @@ func concatAutos(pop string) {
 
 	log.Printf("Bcftools concat VCF files in %s start!\n", pop)
 	if err := concatCommand.Start(); err != nil {
-		log.Fatalf("Problem occurred when starting concatCommand: %v", err)
+		log.Fatalf("Problem occurred when starting concat command: %v", err)
 	}
 
 	if err := concatCommand.Wait(); err != nil {
-		log.Printf("Problem occurred when executing concatCommand: %v,stderr: %s", err, stderr.String())
+		log.Printf("Problem occurred when executing concat command: %v,stderr: %s", err, stderr.String())
 	}
 
 	log.Printf("Bcftools concat success in %s!\n", pop)
