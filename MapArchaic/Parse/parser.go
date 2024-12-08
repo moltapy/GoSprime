@@ -18,10 +18,14 @@ type Args struct {
 	ReadDepth   *string
 }
 
+// TODO: fill the left MAPARCHAIC AND BUILD WORKFLOW FOR IT
+
 func (args *Args) Parse() {
 	args.BedMode = flag.String("b", "", "Tag for indicating way to use the prama MASK FILE, use 'include' for including points in mask file,'exclude' for excluding points in mask file(default:Include all points in score file)")
 	args.SepChar = flag.String("c", "\t", "Separator of the output file")
 	args.MskFile = flag.String("m", "", "Mask file, only one allowed as the input")
+
+	// here AND SOME LOGS
 	args.ArchaicFile = flag.String("a", "", "File ")
 	args.ScoreFile = flag.String("s", "", "Score file from Sprime")
 	args.RefTag = flag.String("t", "", "Tag for the added column")
