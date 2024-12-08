@@ -71,7 +71,7 @@ func readSubPops(subPopFilePath string) []string {
 func runSprime(pop string) {
 	defer sprimeGroup.Done()
 
-	concatedGenoFile := *args.WorkPath + "/" + pop + *args.GenoPath
+	concatedGenoFile := *args.WorkPath + "/" + pop + "/" + *args.GenoPath
 
 	log.Printf("Start sprime process in %s!", pop)
 	for chrom := 1; chrom <= 22; chrom++ {
