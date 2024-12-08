@@ -8,24 +8,25 @@ import (
 )
 
 type Args struct {
-	BedMode   *string
-	SepChar   *string
-	MskFile   *string
-	VcfFile   *string
-	ScoreFile *string
-	RefTag    *string
-	OutFile   *string
-	ReadDepth *string
+	BedMode     *string
+	SepChar     *string
+	MskFile     *string
+	ArchaicFile *string
+	ScoreFile   *string
+	RefTag      *string
+	OutFile     *string
+	ReadDepth   *string
 }
 
 func (args *Args) Parse() {
-	args.BedMode = flag.String("bed", "", "Tag for indicating way to use the prama MASK FILE, use 'include' for including points in mask file,'exclude' for excluding points in mask file(default:Include all points in score file)")
-	args.SepChar = flag.String("sep", "\t", "Separator of the output file")
-	args.MskFile = flag.String("msk", "", "Mask file, only one allowed as the input")
-	args.ScoreFile = flag.String("score", "", "Score file from Sprime")
-	args.RefTag = flag.String("tag", "", "Tag for the added column")
-	args.OutFile = flag.String("out", "", "Mapped score file path")
-	args.ReadDepth = flag.String("depth", "false", "Show read depth in result file(optional), bool, true for showing, false for not showing")
+	args.BedMode = flag.String("b", "", "Tag for indicating way to use the prama MASK FILE, use 'include' for including points in mask file,'exclude' for excluding points in mask file(default:Include all points in score file)")
+	args.SepChar = flag.String("c", "\t", "Separator of the output file")
+	args.MskFile = flag.String("m", "", "Mask file, only one allowed as the input")
+	args.ArchaicFile = flag.String("a", "", "File ")
+	args.ScoreFile = flag.String("s", "", "Score file from Sprime")
+	args.RefTag = flag.String("t", "", "Tag for the added column")
+	args.OutFile = flag.String("o", "", "Mapped score file path")
+	args.ReadDepth = flag.String("d", "false", "Show read depth in result file(optional), bool, true for showing, false for not showing")
 	flag.Parse()
 	if len(os.Args) > 2 {
 		if *args.BedMode != "" && *args.MskFile == "" {
