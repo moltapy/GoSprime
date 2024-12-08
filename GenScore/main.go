@@ -31,7 +31,7 @@ func main() {
 	for index, subpop := range subpops {
 		sprimeGroup.Add(1)
 		go runSprime(subpop)
-		if index+1%*args.Threads == 0 {
+		if (index+1)%*args.Threads == 0 {
 			sprimeGroup.Wait()
 		}
 	}
