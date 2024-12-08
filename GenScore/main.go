@@ -74,9 +74,15 @@ func runSprime(pop string) {
 	concatedGenoFile := *args.WorkPath + "/" + pop + "/" + *args.GenoPath
 
 	log.Printf("Start sprime process in %s!", pop)
+
+	err := os.MkdirAll("SprimeScore", os.ModePerm)
+	if err != nil {
+		log.Fatalf("Problem occurred when creating directory 'SprimeScore' to save score files: %v", err)
+	}
 	for chrom := 1; chrom <= 22; chrom++ {
+		outFileName := *args.WorkPath + "/" + pop + "/SprimeScore/" + strings.Replace(*args.OutFileName, "{chrom}", strconv.Itoa(chrom), 1)
 		chromGroup.Add(1)
-		go runChromosome(*args.SprimeTool, concatedGenoFile, *args.OutGroupFile, *args.MapFile, *args.OutFileName, pop, chrom)
+		go runChromosome(*args.SprimeTool, concatedGenoFile, *args.OutGroupFile, *args.MapFile, outFileName, pop, chrom)
 	}
 	chromGroup.Wait()
 	log.Printf("Finished sprime calculate in %s!", pop)
