@@ -97,7 +97,7 @@ func runChromosome(sprimeJar, genoFile, outgroupFile, mapFile, outputPrefix, pop
 
 	sprimeCommand.Stderr = &stderr
 
-	log.Printf("Sprime calculate at %d in %s start!", chrom, pop)
+	log.Printf("Sprime calculate at chromsome %d in %s start!", chrom, pop)
 	if err := sprimeCommand.Start(); err != nil {
 		log.Fatalf("Problem occurred when starting sprime command: %v", err)
 	}
