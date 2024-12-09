@@ -21,9 +21,9 @@ type Args struct {
 // TODO: fill the left MAPARCHAIC AND BUILD WORKFLOW FOR IT
 
 func (args *Args) Parse() {
-	args.BedMode = flag.String("b", "", "Tag for indicating way to use the prama MASK FILE, use 'include' for including points in mask file,'exclude' for excluding points in mask file(default:Include all points in score file)")
-	args.SepChar = flag.String("c", "\t", "Separator of the output file")
-	args.MskFile = flag.String("m", "", "Mask file, only one allowed as the input")
+	args.BedMode = flag.String("b", "", "Tag for indicating how to use the prama MASK FILE,options: 'include'/'exclude'; 'include' for including points in mask file, 'exclude' for excluding points in mask file(default: include all points in score file)")
+	args.SepChar = flag.String("c", "\t", "Separator of the score file")
+	args.MskFile = flag.String("m", "", "Path of the MASK FILE, should be a bed file for a specific chromosome")
 
 	// here AND SOME LOGS
 	args.ArchaicFile = flag.String("a", "", "File ")
