@@ -8,6 +8,7 @@ import (
 )
 
 type Args struct {
+	WorkPath    *string
 	BedMode     *string
 	SepChar     *string
 	MskFile     *string
@@ -21,15 +22,19 @@ type Args struct {
 // TODO: fill the left MAPARCHAIC AND BUILD WORKFLOW FOR IT
 
 func (args *Args) Parse() {
+
+	directory, err := os.Getwd()
+	if err != nil {
+		log.Printf("Failed to get current directory :%v", err)
+	}
+	args.WorkPath = flag.String("w", directory, "Path of the subpopulation directories, should be the ")
 	args.BedMode = flag.String("b", "", "Tag for indicating how to use the prama MASK FILE,options: 'include'/'exclude'; 'include' for including points in mask file, 'exclude' for excluding points in mask file(default: include all points in score file)")
 	args.SepChar = flag.String("c", "\t", "Separator of the score file")
 	args.MskFile = flag.String("m", "", "Path of the MASK FILE, should be a bed file for a specific chromosome")
-
-	// here AND SOME LOGS
-	args.ArchaicFile = flag.String("a", "", "File ")
-	args.ScoreFile = flag.String("s", "", "Score file from Sprime")
-	args.RefTag = flag.String("t", "", "Tag for the added column")
-	args.OutFile = flag.String("o", "", "Mapped score file path")
+	args.ArchaicFile = flag.String("a", "", "Path of the ARCHAIC VCF FILE, should be a gzip VCF file for a specific chromosome")
+	args.ScoreFile = flag.String("s", "", "Path of SPRIME GENERATED SCORE FILE")
+	args.RefTag = flag.String("t", "", "Tag for ADDED COLUMN")
+	args.OutFile = flag.String("o", "", "Path of OUTPUT SCORE FILE WITH MATCHING TAG COLUMN")
 	args.ReadDepth = flag.String("d", "false", "Show read depth in result file(optional), bool, true for showing, false for not showing")
 	flag.Parse()
 	if len(os.Args) > 2 {
