@@ -35,8 +35,9 @@ func (args *Args) Parse() {
 	args.ScoreFile = flag.String("s", "", "Path of SPRIME GENERATED SCORE FILE")
 	args.RefTag = flag.String("t", "", "Tag for ADDED COLUMN")
 	args.OutFile = flag.String("o", "", "Path of OUTPUT SCORE FILE WITH MATCHING TAG COLUMN")
-	args.ReadDepth = flag.String("d", "false", "Show read depth in result file(optional), bool, true for showing, false for not showing")
+	args.ReadDepth = flag.String("d", "false", "Tag for containing READ DEPTH INFO in result file, should be 'true' for showing, 'false' for not showing")
 	flag.Parse()
+
 	if len(os.Args) > 2 {
 		if *args.BedMode != "" && *args.MskFile == "" {
 			log.Fatal("If you use the prama BED, The prama MASK FILE cannot be nil, Please check!")

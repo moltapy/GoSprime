@@ -134,7 +134,7 @@ func main() {
 		}
 	}
 
-	archFile, err := os.Open(*args.VcfFile)
+	archFile, err := os.Open(*args.ArchaicFile)
 	if err != nil {
 		log.Fatal("Problem occured when opening the archaic genotype file, Please check!", err)
 	}
