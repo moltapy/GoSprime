@@ -1,0 +1,55 @@
+apps:
+  - ExtractSamples
+  - ExtractAutos
+  - ConcatAutos
+  - GenerateScores
+  - MappingArchs
+
+paths:
+  bcftool_filepath: "/path/to/your/bcftools"  
+  sprimejar_filepath: "/path/to/your/bcftools"
+  geneticmap_filepath: "/path/to/your/plink.all.GRch37.map"
+  maskbed_filepath: "/path/to/your/mask_final/chr_{chr}_final_mask.bed.gz"
+  origin_samplelist_filepath: "/path/to/your/samplelist.txt"
+  splited_samplelists_dirpath: "/sprime_out/splited_samples"
+  outgroup_samplelists_dirpath: "/sprime_out/outgroup_samplelist"
+  modernhuman_vcffiles_filepath: "/path/to/your/data_1kg/modern_v5b/chrom_{chr}.vcf.gz"
+  modernhuman_extracted_vcffiles_dirpath: "/sprime_out/extracted_samples"  
+  concated_vcffiles_dirpath: "/sprime_out/concated_samples" 
+  concated_genotypes_filepath: "/sprime_out/concated_samples/{group}_all.vcf.gz" 
+  generated_scorefiles_dirpath: "/sprime_out/score_groups"
+  archaic_vcffile_x_filepath: "/path/to/your/altai/chr_{chr}.vcf.gz"
+  archaic_vcffile_y_filepath: "/path/to/your/Denisovan/chr_{chr}.vcf.gz"
+  summary_script_filepath: "Rscripts/summary.r"
+  contour_script_filepath: "Rscripts/contour.r"
+
+names:
+  outgroup_name: "YRI"
+  modernhuman_vcffiles_name: "chrom_{chr}.vcf.gz"
+  column_name_x: "AltaiNean"
+  column_name_y: "AltaiDeni"
+
+ranges:
+  extracted_samples_range: ""             
+  extracted_autos_chroms_range: ""        
+  extracted_autos_groups_range: ""        
+  concat_autos_groups_range: ""
+  generate_scores_groups_range: ""
+  generate_scores_chroms_range: ""  
+
+formats:
+  samplelist_lines_separators: ""  
+
+
+tags:
+  samplelists_isheader: true
+  extracted_vcfs_isoverwrite: false
+  concat_vcfs_isoverwrite: false
+  generate_scores_isoverwrite: false
+  maskbed_isexclude: false  
+  depth_x: false
+  depth_y: false
+
+parallel:
+  cores:        ""
+  threads:      ""

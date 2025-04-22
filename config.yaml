@@ -1,0 +1,88 @@
+# 说明: 这里是针对配置文件的内容做一些简单的注释
+
+## apps是一个列表，存储用到的软件的文件名，sprime.py会首先对其进行检查，不建议对其修改
+apps:
+  - ExtractSamples
+  - ExtractAutos
+  - ConcatAutos
+  - GenerateScores
+  - MappingArchs
+
+## paths是包含路径的键值对，下面进行简单的说明，同样，对其中每一个键，sprime.py在运行时会先检查，无需使用，请留空字符串，不要删除
+paths:
+  # bcftool_filepath: Bcftools的路径，如果全局安装可以留空，此外填写Bcftools的绝对路径
+  bcftool_filepath: ""  
+  # sprimejar_filepath: sprime.jar的路径，填写绝对路径或者相对工作目录的相对路径，工作目录需要在sprime.py运行时指定，默认是其父目录
+  sprimejar_filepath: ""
+  # geneticmap_filepath: PLINK根据参考基因组生成的映射文件的路径，填写绝对路径或者相对工作目录的相对路径
+  geneticmap_filepath: ""
+  # maskbed_filepath: 在Mapping步骤中用于mask的BED文件，建议填写绝对路径，染色体序号用{chr}占位，文件需要是gz压缩格式
+  maskbed_filepath: ""
+  # origin_samplelist_filepath: ExtractSamples使用的样本列表文本文件路径，保证第一列是ID，第二列是需要提取的子群体
+  origin_samplelist_filepath: ""
+  # splited_samplelists_dirpath: ExtractSamples提取后子群体样本列表文本文件的保存目录
+  splited_samplelists_dirpath: ""
+  # outgroup_samplelists_dirpath: ExtractSamples提取后外类群样本列表文本文件的保存目录
+  outgroup_samplelists_dirpath: ""
+  # modernhuman_vcffiles_filepath: 现代人VCF文件路径，文件应该是gz压缩格式，染色体序号用{chr}占位
+  modernhuman_vcffiles_filepath: ""
+  # modernhuman_extracted_vcffiles_dirpath: 现代人根据子群体提取后的VCF文件存储目录，如这里是"test"，工作目录为当前路径，子群体是"ACB"
+  # 那么就会在当前路径下生成test/ACB/chrom_1.vcf.gz这样的文件
+  modernhuman_extracted_vcffiles_dirpath: ""
+  # concated_vcffiles_dirpath: ConcatAutos合并后每个子群体的染色体VCF文件存储目录，比如这里是"test",子群体是"ACB"
+  # 结果文件是test/ACB_all.vcf.gz  
+  concated_vcffiles_dirpath: ""
+  # concated_genotypes_filepath: ConcatAutos合并后每个子群体的染色体VCF文件路径，群体用{group}代替
+  # 这里实际上就是concated_vcffiles_dirpath后面拼接"/{group}_all.vcf.gz"，为了软件独立使用做的让步 
+  concated_genotypes_filepath: "" 
+  # generated_scorefiles_dirpath: GenerateScores处理后每个子群体的score文件目录，如这里是"test"，工作目录为当前路径，子群体是"ACB"
+  # 外类群是"YRI"，结果路径类似test/ACB/ACB_YRI_1.score
+  generated_scorefiles_dirpath: ""
+  # archaic_vcffile_x_filepath: MappingArchs使用的古人VCF文件路径，gz压缩格式外加{chr}占位染色体序号，作图展示为x轴
+  archaic_vcffile_x_filepath: ""
+  # archaic_vcffile_x_filepath: MappingArchs使用的古人VCF文件路径，gz压缩格式外加{chr}占位染色体序号，作图展示为y轴
+  archaic_vcffile_y_filepath: ""
+  # 这里是用于总结和作图的R脚本，一般不要改动
+  summary_script_filepath: "Rscripts/summary.r"
+  contour_script_filepath: "Rscripts/contour.r"
+
+## names是指定流程中命名的键值对，同样sprime.py会做检查 
+names:
+  # outgroup_name: 外类群名称，常见的比如YRI直接填入
+  outgroup_name: ""
+  # modernhuman_vcffiles_name: 按照子群体分离后现代人类VCF文件的名称，用{chr}占位染色体号
+  modernhuman_vcffiles_name: "chrom_{chr}.vcf.gz"
+  # x轴古人在匹配时的列名
+  column_name_x: "AltaiNean"
+  # y轴古人在匹配时的列名
+  column_name_y: "AltaiDeni"
+
+## ranges是指定流程中的范围，包括群体范围和染色体范围，相对较好理解，注意用,做分隔符，不要随意删除其中的键
+ranges:
+  extracted_samples_range: ""        
+  extracted_autos_chroms_range: ""    
+  extracted_autos_groups_range: ""     
+  concat_autos_groups_range: ""
+  generate_scores_groups_range: ""
+  generate_scores_chroms_range: ""  
+
+## formats指定格式化字符串，用于ExtractSamples中样本列表文件格式不规范的问题，具体的使用方式见README
+formats:
+  samplelist_lines_separators: ""  
+
+## tags指定一些标记，是否允许覆盖，样本文件是否包含header，mask是否是exclude的，以及是否显示x和y轴古人的测序深度，布尔值
+tags:
+  samplelists_isheader: true
+  extracted_vcfs_isoverwrite: false
+  concat_vcfs_isoverwrite: false
+  generate_scores_isoverwrite: false
+  maskbed_isexclude: false 
+  depth_x: false
+  depth_y: false
+
+## parallel指定运行时的核数和线程数，一般来说留空就行，有特殊需求时可以使用，记得要填写字符串
+parallel:
+  cores:        ""
+  threads:      ""
+
+# 示范和最佳实践见config_example.yaml
