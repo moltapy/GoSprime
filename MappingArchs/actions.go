@@ -17,19 +17,33 @@ import (
 
 var actions = func(ctx context.Context, c *cli.Command) error {
 
-	dataArray := make([][3]rune, maxpos+1)
-	depthArray := make([]int, maxpos+1)
+	// genoInfos用于替换dataArray和deptharray,[0,1]或者[1,1]初始化
+	genoInfos := make([][2]int, maxpos+1)
 
 	if isreverse {
 		logrus.Infof("Reverse mode on, include mask: %s", maskpath)
-		for i := 0; i <= maxpos; i++ {
-			dataArray[i][0] = '0'
+		if maxpos < 1000000 {
+			for i := 0; i <= maxpos; i++ {
+				genoInfos[i] = [2]int{Inactive, Defaultdepth}
+			}
+		} else {
+			for i := 0; i <= maxpos; i++ {
+				go initGenoInfo(genoInfos, i, Inactive, Defaultdepth)
+			}
 		}
+
 	} else {
 		logrus.Infof("Reverse mode off, exclude mask: %s", maskpath)
-		for i := 0; i <= maxpos; i++ {
-			dataArray[i][0] = '1'
+		if maxpos < 1000000 {
+			for i := 0; i <= maxpos; i++ {
+				genoInfos[i] = [2]int{Active, Defaultdepth}
+			}
+		} else {
+			for i := 0; i <= maxpos; i++ {
+				go initGenoInfo(genoInfos, i, Active, Defaultdepth)
+			}
 		}
+
 	}
 
 	if isdepth {
@@ -74,11 +88,7 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 				return fmt.Errorf("End pos %s is non-int, reason: %v", contents[2], err)
 			}
 			for i := start + 1; i <= end && i <= maxpos; i++ {
-				if isreverse {
-					dataArray[i][0] = '1'
-				} else {
-					dataArray[i][0] = '0'
-				}
+				genoInfos[i][0] = (genoInfos[i][0] ^ Active) << MaskSite
 			}
 		}
 	}
@@ -135,16 +145,16 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 
 		if len(refAllele) < 2 && len(altAllele) < 2 {
 
-			if genotype[0] == '0' {
-				dataArray[position][1] = rune(refAllele[0])
-			} else if genotype[0] == '1' {
-				dataArray[position][1] = rune(altAllele[0])
+			if int(genotype[0]-48) == 0 {
+				genoInfos[position][0] = (genoInfos[position][0] | int(refAllele[0]-48)<<LeftSite)
+			} else if int(genotype[0]-48) == 1 {
+				genoInfos[position][0] = (genoInfos[position][0] | int(altAllele[0]-48)<<LeftSite)
 			}
 
-			if genotype[2] == '0' {
-				dataArray[position][2] = rune(refAllele[0])
-			} else if genotype[2] == '1' {
-				dataArray[position][2] = rune(altAllele[0])
+			if int(genotype[2]-48) == 0 {
+				genoInfos[position][0] = (genoInfos[position][0] | int(refAllele[0]-48)<<RightSite)
+			} else if int(genotype[2]-48) == 1 {
+				genoInfos[position][0] = (genoInfos[position][0] | int(altAllele[0]-48)<<RightSite)
 			}
 
 			re := regexp.MustCompile(`\d+`)
@@ -154,22 +164,21 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 					logrus.Warningf("Depth value not found in %s, continue with 1, stop and check if needed, hint: program use first int value of INFO column as depth", string(depth))
 					depthTag = true
 				}
-				depthArray[position] = 1
 			} else {
 				depthInt, _ := strconv.Atoi(depthval)
-				depthArray[position] = depthInt
+				genoInfos[position][1] = depthInt
 			}
 		}
 	}
 
-	atomicRewrite(scorepath, dataArray, depthArray)
+	atomicRewrite(scorepath, genoInfos)
 
 	logrus.Infof("Complete mapping archaic, column: %s, score file: %s", arrayname, scorepath)
 
 	return nil
 }
 
-func atomicRewrite(filename string, data [][3]rune, depth []int) error {
+func atomicRewrite(filename string, genoInfos [][2]int) error {
 	tmpFile := filename + ".tmp"
 
 	input, err := os.Open(filename)
@@ -208,17 +217,17 @@ func atomicRewrite(filename string, data [][3]rune, depth []int) error {
 			if err != nil {
 				return fmt.Errorf("Seventh column of score file contains non-int value: %s", contents[6])
 			}
-			var snp byte
+			var snp int
 			switch k {
 			case 0:
-				snp = []byte(contents[3])[0]
+				snp = int([]byte(contents[3])[0] - 48)
 			case 1:
-				snp = []byte(contents[4])[0]
+				snp = int([]byte(contents[4])[0] - 48)
 			default:
 				return fmt.Errorf("Seventh column value: %s of score file cannot match snp", contents[6])
 			}
 
-			modified = line + processPosition(pos, rune(snp), isdepth, data, depth)
+			modified = line + processPosition(pos, snp, isdepth, genoInfos)
 
 		}
 
@@ -239,21 +248,25 @@ func atomicRewrite(filename string, data [][3]rune, depth []int) error {
 	return os.Rename(tmpFile, filename)
 }
 
-func processPosition(pos int, snp rune, depthOptions bool, data [][3]rune, depth []int) string {
+func processPosition(pos, snp int, depthOptions bool, genoInfos [][2]int) string {
 
 	resStr := ""
 
-	if data[pos][0] == '0' || depth[pos] < 0 {
+	if genoInfos[pos][0]&(Active<<MaskSite) == 0 || genoInfos[pos][1] < 0 {
 		resStr += sep + "notcomp"
 	} else {
-		if snp == data[pos][1] || snp == data[pos][2] {
+		if genoInfos[pos][0]&(snp<<LeftSite) == 0 || genoInfos[pos][0]&(snp<<RightSite) == 0 {
 			resStr += sep + "match"
 		} else {
 			resStr += sep + "mismatch"
 		}
 	}
 	if depthOptions {
-		resStr += sep + strconv.Itoa(depth[pos])
+		resStr += sep + strconv.Itoa(genoInfos[pos][1])
 	}
 	return resStr
+}
+
+func initGenoInfo(array [][2]int, index, status, depth int) {
+	array[index] = [2]int{status, depth}
 }
