@@ -17,33 +17,19 @@ import (
 
 var actions = func(ctx context.Context, c *cli.Command) error {
 
-	// genoInfos用于替换dataArray和deptharray,[0,1]或者[1,1]初始化
 	genoInfos := make([][2]int, maxpos+1)
 
 	if isreverse {
 		logrus.Infof("Reverse mode on, include mask: %s", maskpath)
-		if maxpos < 1000000 {
-			for i := 0; i <= maxpos; i++ {
-				genoInfos[i] = [2]int{Inactive, Defaultdepth}
-			}
-		} else {
-			for i := 0; i <= maxpos; i++ {
-				go initGenoInfo(genoInfos, i, Inactive, Defaultdepth)
-			}
+		for i := 0; i <= maxpos; i++ {
+			genoInfos[i] = [2]int{Inactive, Defaultdepth}
 		}
-
 	} else {
 		logrus.Infof("Reverse mode off, exclude mask: %s", maskpath)
-		if maxpos < 1000000 {
-			for i := 0; i <= maxpos; i++ {
-				genoInfos[i] = [2]int{Active, Defaultdepth}
-			}
-		} else {
-			for i := 0; i <= maxpos; i++ {
-				go initGenoInfo(genoInfos, i, Active, Defaultdepth)
-			}
-		}
 
+		for i := 0; i <= maxpos; i++ {
+			genoInfos[i] = [2]int{Active, Defaultdepth}
+		}
 	}
 
 	if isdepth {
@@ -146,15 +132,15 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 		if len(refAllele) < 2 && len(altAllele) < 2 {
 
 			if int(genotype[0]-48) == 0 {
-				genoInfos[position][0] = (genoInfos[position][0] | int(refAllele[0]-48)<<LeftSite)
+				genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<LeftSite)
 			} else if int(genotype[0]-48) == 1 {
-				genoInfos[position][0] = (genoInfos[position][0] | int(altAllele[0]-48)<<LeftSite)
+				genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<LeftSite)
 			}
 
 			if int(genotype[2]-48) == 0 {
-				genoInfos[position][0] = (genoInfos[position][0] | int(refAllele[0]-48)<<RightSite)
+				genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<RightSite)
 			} else if int(genotype[2]-48) == 1 {
-				genoInfos[position][0] = (genoInfos[position][0] | int(altAllele[0]-48)<<RightSite)
+				genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<RightSite)
 			}
 
 			re := regexp.MustCompile(`\d+`)
@@ -220,9 +206,9 @@ func atomicRewrite(filename string, genoInfos [][2]int) error {
 			var snp int
 			switch k {
 			case 0:
-				snp = int([]byte(contents[3])[0] - 48)
+				snp = typeMask[[]byte(contents[3])[0]]
 			case 1:
-				snp = int([]byte(contents[4])[0] - 48)
+				snp = typeMask[[]byte(contents[4])[0]]
 			default:
 				return fmt.Errorf("Seventh column value: %s of score file cannot match snp", contents[6])
 			}
@@ -250,8 +236,6 @@ func atomicRewrite(filename string, genoInfos [][2]int) error {
 
 func processPosition(pos, snp int, depthOptions bool, genoInfos [][2]int) string {
 
-	logrus.Debug("snp =", snp)
-
 	resStr := ""
 
 	if genoInfos[pos][0]&(Active<<MaskSite) == 0 || genoInfos[pos][1] < 0 {
@@ -267,8 +251,4 @@ func processPosition(pos, snp int, depthOptions bool, genoInfos [][2]int) string
 		resStr += sep + strconv.Itoa(genoInfos[pos][1])
 	}
 	return resStr
-}
-
-func initGenoInfo(array [][2]int, index, status, depth int) {
-	array[index] = [2]int{status, depth}
 }
