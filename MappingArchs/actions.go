@@ -250,6 +250,8 @@ func atomicRewrite(filename string, genoInfos [][2]int) error {
 
 func processPosition(pos, snp int, depthOptions bool, genoInfos [][2]int) string {
 
+	logrus.Debug("snp =", snp)
+
 	resStr := ""
 
 	if genoInfos[pos][0]&(Active<<MaskSite) == 0 || genoInfos[pos][1] < 0 {
