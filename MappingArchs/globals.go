@@ -1,6 +1,10 @@
 package main
 
-import "github.com/urfave/cli/v3"
+import (
+	"sync"
+
+	"github.com/urfave/cli/v3"
+)
 
 const Active = 1
 
@@ -25,6 +29,8 @@ var isdepth, isreverse bool = false, false
 var depthTag bool = false
 
 var maxpos int
+
+var wg sync.WaitGroup
 
 var typeMask map[byte]int = map[byte]int{
 	'A': Mask_A,

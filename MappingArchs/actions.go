@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -108,6 +109,19 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 
 	re := regexp.MustCompile(`\d+`)
 
+	linesCh := make(chan string, 128)
+	workers := runtime.NumCPU()
+
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for line := range linesCh {
+				processVCFLine(line, genoInfos, maxpos, re)
+			}
+		}()
+	}
+
 	for {
 		line, _, err := archbufreader.ReadLine()
 		if err != nil && err != io.EOF {
@@ -117,50 +131,56 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 			logrus.Infof("Complete reading file: %s", archvcfpath)
 			break
 		}
-
-		lines := strings.Split(string(line), "\t")
-		position, err := strconv.Atoi(lines[1])
-		if err != nil {
-			return fmt.Errorf("Second column in file: %s contains non-int value: %s", archvcfpath, lines[1])
-		}
-
-		if position > maxpos {
-			break
-		}
-
-		refAllele, altAllele, depth, genotype := lines[3], lines[4], lines[7], lines[9]
-
-		if len(refAllele) < 2 && len(altAllele) < 2 {
-
-			if int(genotype[0]-48) == 0 {
-				genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<LeftSite)
-			} else if int(genotype[0]-48) == 1 {
-				genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<LeftSite)
-			}
-
-			if int(genotype[2]-48) == 0 {
-				genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<RightSite)
-			} else if int(genotype[2]-48) == 1 {
-				genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<RightSite)
-			}
-
-			depthval := re.FindString(depth)
-			if depthval == "" {
-				if !depthTag {
-					logrus.Warningf("Depth value not found in %s, continue with 1, stop and check if needed, hint: program use first int value of INFO column as depth", depth)
-					depthTag = true
-				}
-			} else {
-				depthInt, _ := strconv.Atoi(depthval)
-				genoInfos[position][1] = depthInt
-			}
-		}
+		linesCh <- string(line)
 	}
+	close(linesCh)
+	wg.Wait()
 
 	atomicRewrite(scorepath, genoInfos)
 
 	logrus.Infof("Complete mapping archaic, column: %s, score file: %s", arrayname, scorepath)
 
+	return nil
+}
+
+func processVCFLine(line string, genoInfos [][2]int, maxpos int, re *regexp.Regexp) error {
+	lines := strings.Split(line, "\t")
+	position, err := strconv.Atoi(lines[1])
+	if err != nil {
+		return fmt.Errorf("Second column in file: %s contains non-int value: %s", archvcfpath, lines[1])
+	}
+
+	if position > maxpos {
+		return nil
+	}
+
+	refAllele, altAllele, depth, genotype := lines[3], lines[4], lines[7], lines[9]
+
+	if len(refAllele) < 2 && len(altAllele) < 2 {
+
+		if int(genotype[0]-48) == 0 {
+			genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<LeftSite)
+		} else if int(genotype[0]-48) == 1 {
+			genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<LeftSite)
+		}
+
+		if int(genotype[2]-48) == 0 {
+			genoInfos[position][0] = (genoInfos[position][0] | typeMask[refAllele[0]]<<RightSite)
+		} else if int(genotype[2]-48) == 1 {
+			genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<RightSite)
+		}
+
+		depthval := re.FindString(depth)
+		if depthval == "" {
+			if !depthTag {
+				logrus.Warningf("Depth value not found in %s, continue with 1, stop and check if needed, hint: program use first int value of INFO column as depth", depth)
+				depthTag = true
+			}
+		} else {
+			depthInt, _ := strconv.Atoi(depthval)
+			genoInfos[position][1] = depthInt
+		}
+	}
 	return nil
 }
 
