@@ -8,15 +8,15 @@ const Inactive = 0
 
 const Defaultdepth = 1
 
-const MaskSite = 4
+const MaskSite = 8
 
-const LeftSite = 2
+const LeftSite = 4
 
 const RightSite = 0
 
-const Mask_A, Mask_T = 0, 1
+const Mask_A, Mask_T = 1 << 0, 1 << 1
 
-const Mask_C, Mask_G = 2, 3
+const Mask_C, Mask_G = 1 << 2, 1 << 3
 
 var sep, maskpath, archvcfpath, scorepath, arrayname string
 

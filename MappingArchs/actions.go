@@ -22,13 +22,12 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 	if isreverse {
 		logrus.Infof("Reverse mode on, include mask: %s", maskpath)
 		for i := 0; i <= maxpos; i++ {
-			genoInfos[i] = [2]int{Inactive, Defaultdepth}
+			genoInfos[i] = [2]int{Inactive << MaskSite, Defaultdepth}
 		}
 	} else {
 		logrus.Infof("Reverse mode off, exclude mask: %s", maskpath)
-
 		for i := 0; i <= maxpos; i++ {
-			genoInfos[i] = [2]int{Active, Defaultdepth}
+			genoInfos[i] = [2]int{Active << MaskSite, Defaultdepth}
 		}
 	}
 
@@ -74,7 +73,7 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 				return fmt.Errorf("End pos %s is non-int, reason: %v", contents[2], err)
 			}
 			for i := start + 1; i <= end && i <= maxpos; i++ {
-				genoInfos[i][0] = (genoInfos[i][0] ^ Active) << MaskSite
+				genoInfos[i][0] ^= Active << MaskSite
 			}
 		}
 	}
@@ -106,6 +105,8 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 			break
 		}
 	}
+
+	re := regexp.MustCompile(`\d+`)
 
 	for {
 		line, _, err := archbufreader.ReadLine()
@@ -143,11 +144,10 @@ var actions = func(ctx context.Context, c *cli.Command) error {
 				genoInfos[position][0] = (genoInfos[position][0] | typeMask[altAllele[0]]<<RightSite)
 			}
 
-			re := regexp.MustCompile(`\d+`)
-			depthval := re.FindString(string(depth))
+			depthval := re.FindString(depth)
 			if depthval == "" {
 				if !depthTag {
-					logrus.Warningf("Depth value not found in %s, continue with 1, stop and check if needed, hint: program use first int value of INFO column as depth", string(depth))
+					logrus.Warningf("Depth value not found in %s, continue with 1, stop and check if needed, hint: program use first int value of INFO column as depth", depth)
 					depthTag = true
 				}
 			} else {
@@ -237,11 +237,10 @@ func atomicRewrite(filename string, genoInfos [][2]int) error {
 func processPosition(pos, snp int, depthOptions bool, genoInfos [][2]int) string {
 
 	resStr := ""
-
 	if genoInfos[pos][0]&(Active<<MaskSite) == 0 || genoInfos[pos][1] < 0 {
 		resStr += sep + "notcomp"
 	} else {
-		if genoInfos[pos][0]&(snp<<LeftSite) == 0 || genoInfos[pos][0]&(snp<<RightSite) == 0 {
+		if genoInfos[pos][0]&(snp<<LeftSite) != 0 || genoInfos[pos][0]&(snp<<RightSite) != 0 {
 			resStr += sep + "match"
 		} else {
 			resStr += sep + "mismatch"
