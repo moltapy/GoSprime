@@ -6,11 +6,14 @@ import argparse
 def clean_total():
 
     paths = yaml.load(open("config.yaml", "rb"), yaml.FullLoader)["paths"]
-    shutil.rmtree(paths["splited_samplelists_dirpath"])
-    shutil.rmtree(paths["outgroup_samplelists_dirpath"])
-    shutil.rmtree(paths["modernhuman_extracted_vcffiles_dirpath"])
-    shutil.rmtree(paths["concated_vcffiles_dirpath"])
-    shutil.rmtree(paths["generated_scorefiles_dirpath"])
+    try:
+        shutil.rmtree(paths["splited_samplelists_dirpath"])
+        shutil.rmtree(paths["outgroup_samplelists_dirpath"])
+        shutil.rmtree(paths["modernhuman_extracted_vcffiles_dirpath"])
+        shutil.rmtree(paths["concated_vcffiles_dirpath"])
+        shutil.rmtree(paths["generated_scorefiles_dirpath"])
+    except FileNotFoundError:
+        pass
     
     
 def clean_mapping():
